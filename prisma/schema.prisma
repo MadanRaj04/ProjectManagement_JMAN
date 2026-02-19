@@ -14,30 +14,35 @@ model ManagerWhitelist {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  username   String   @unique
-  email      String   @unique
-  password   String
-  role       Role
-  isVerified Boolean  @default(false)
-  createdAt  DateTime @default(now())
+  id                     String   @id @default(uuid())
+  username               String   @unique
+  email                  String   @unique
+  password               String
+  role                   Role
+  isVerified             Boolean  @default(false)
+  createdAt              DateTime @default(now())
 
-  // 🔥 RELATIONS
-  managedProjects Project[]       @relation("ManagerProjects")
-  projectMembers  ProjectMember[]
+  // 🔥 Preferences
+  darkMode               Boolean  @default(false)
+  notificationsEnabled   Boolean  @default(true)
+
+  // 🔥 Relations
+  managedProjects        Project[]       @relation("ManagerProjects")
+  projectMembers         ProjectMember[]
+  assignedTasks          Task[]          @relation("UserTasks")
 }
+
 
 model Project {
   id        String @id @default(uuid())
   name      String
   status    String @default("ACTIVE")
 
-  // 🔥 Relation to Manager
   manager   User   @relation("ManagerProjects", fields: [managerId], references: [id])
   managerId String
 
-  // 🔥 Relation to Members
   members   ProjectMember[]
+  tasks     Task[]
 }
 
 model ProjectMember {
@@ -63,6 +68,27 @@ model JoinRequest {
   projectId String
   userId    String
   status    String  @default("PENDING")
+}
+
+model Task {
+  id            String      @id @default(uuid())
+  title         String
+  description   String?
+  status        TaskStatus  @default(TODO)
+
+  project       Project     @relation(fields: [projectId], references: [id])
+  projectId     String
+
+  assignedTo    User?       @relation("UserTasks", fields: [assignedToId], references: [id])
+  assignedToId  String?
+
+  createdAt     DateTime    @default(now())
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
 }
 
 enum Role {
