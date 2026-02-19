@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { CustomKanban } from "./components/kanban/CustomKanban"
+import { CustomKanban } from "../components/kanban/CustomKanban"
 
 
 export default function Home() {
