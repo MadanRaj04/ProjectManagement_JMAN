@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ManagerWhitelist {
+  id           String  @id @default(uuid())
+  email        String  @unique
+  isRegistered Boolean @default(false)
+}
+
+model User {
+  id         String   @id @default(uuid())
+  username   String   @unique
+  email      String   @unique
+  password   String
+  role       Role
+  isVerified Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  // 🔥 RELATIONS
+  managedProjects Project[]       @relation("ManagerProjects")
+  projectMembers  ProjectMember[]
+}
+
+model Project {
+  id        String @id @default(uuid())
+  name      String
+  status    String @default("ACTIVE")
+
+  // 🔥 Relation to Manager
+  manager   User   @relation("ManagerProjects", fields: [managerId], references: [id])
+  managerId String
+
+  // 🔥 Relation to Members
+  members   ProjectMember[]
+}
+
+model ProjectMember {
+  id        String  @id @default(uuid())
+
+  project   Project @relation(fields: [projectId], references: [id])
+  projectId String
+
+  user      User    @relation(fields: [userId], references: [id])
+  userId    String
+}
+
+model ProjectInvite {
+  id        String  @id @default(uuid())
+  projectId String
+  managerId String
+  userId    String
+  status    String  @default("PENDING")
+}
+
+model JoinRequest {
+  id        String  @id @default(uuid())
+  projectId String
+  userId    String
+  status    String  @default("PENDING")
+}
+
+enum Role {
+  MANAGER
+  USER
+}
