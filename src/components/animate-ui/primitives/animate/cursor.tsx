@@ -10,8 +10,8 @@ import {
   type SpringOptions,
 } from 'motion/react';
 
-import { getStrictContext } from '@/lib/get-strict-context';
-import { Slot, type WithAsChild } from '@/components/animate-ui/primitives/animate/slot';
+import { getStrictContext } from '@/src/lib/get-strict-context';
+import { Slot, type WithAsChild } from '@/src/components/animate-ui/primitives/animate/slot';
 
 type CursorContextType = {
   cursorPos: { x: number; y: number };

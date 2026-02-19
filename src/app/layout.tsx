@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import IconSideNav from "../components/IconSideNav"
 import ParticleRing from "../components/particlebackground/ParticleRing";
-import { Cursor, CursorFollow, CursorProvider } from "@/components/animate-ui/components/animate/cursor";
+import { Cursor, CursorFollow, CursorProvider } from "@/src/components/animate-ui/components/animate/cursor";
 import Login from "../components/login/Login";
 const geistSans = Geist({
   variable: "--font-geist-sans",
