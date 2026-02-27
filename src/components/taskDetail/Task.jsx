@@ -27,7 +27,7 @@ const TaskDetail = ({ task, isOpen, onClose }) => {
           >
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-2 text-neutral-400 text-sm">
-                <span>Projects</span> / <span>Tasks</span> / <span>{task.id}</span>
+                <span>Projects: </span> / <span>Task</span>{task.id}<span></span>
               </div>
               <button onClick={onClose} className="p-2 hover:bg-neutral-800 rounded-full transition-colors">
                 <FiX className="text-xl" />
