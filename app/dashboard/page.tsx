@@ -1,39 +1,37 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts"
 
 type DashboardData = {
   totalProjects: number
+  managedProjects: number
+  joinedProjects: number
+}
+
+type TaskAnalytics = {
   totalTasks: number
-  completedTasks: number
-  inProgressTasks: number
-  todoTasks: number
+  todo: number
+  inProgress: number
+  done: number
 }
 
 export default function DashboardPage() {
-  const [data, setData] = useState<DashboardData | null>(null)
+  const [dashboard, setDashboard] = useState<DashboardData | null>(null)
+  const [tasks, setTasks] = useState<TaskAnalytics | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch("/api/dashboard")
-        const result = await res.json()
-        setData(result)
+        const dashRes = await fetch("/api/dashboard")
+        const dashData = await dashRes.json()
+        setDashboard(dashData)
+
+        const taskRes = await fetch("/api/dashboard/tasks")
+        const taskData = await taskRes.json()
+        setTasks(taskData)
       } catch (error) {
         console.error("Failed to fetch dashboard data")
       } finally {
@@ -44,23 +42,18 @@ export default function DashboardPage() {
     fetchData()
   }, [])
 
-  if (loading) {
-    return <div className="p-6">Loading dashboard...</div>
-  }
-
-  if (!data) {
-    return <div className="p-6">No data available</div>
-  }
+  if (loading) return <div className="p-6">Loading dashboard...</div>
+  if (!dashboard || !tasks) return <div className="p-6">No data available</div>
 
   const chartData = [
-    { name: "Todo", value: data.todoTasks },
-    { name: "In Progress", value: data.inProgressTasks },
-    { name: "Completed", value: data.completedTasks },
+    { name: "Todo", value: tasks.todo },
+    { name: "In Progress", value: tasks.inProgress },
+    { name: "Done", value: tasks.done },
   ]
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Dashboard Overview</h1>
+      <h1 className="text-2xl font-bold">Dashboard</h1>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -69,30 +62,30 @@ export default function DashboardPage() {
             <CardTitle>Total Projects</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{data.totalProjects}</p>
+            <p className="text-3xl font-bold">{dashboard.totalProjects}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Total Tasks</CardTitle>
+            <CardTitle>Managed Projects</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{data.totalTasks}</p>
+            <p className="text-3xl font-bold">{dashboard.managedProjects}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Completed Tasks</CardTitle>
+            <CardTitle>Joined Projects</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{data.completedTasks}</p>
+            <p className="text-3xl font-bold">{dashboard.joinedProjects}</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Task Status Chart */}
+      {/* Task Chart */}
       <Card>
         <CardHeader>
           <CardTitle>Task Status Overview</CardTitle>
