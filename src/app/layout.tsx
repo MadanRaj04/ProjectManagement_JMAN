@@ -30,14 +30,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >        
-            <CursorProvider>
-            <Cursor />
-            <CursorFollow>Logo</CursorFollow>
+          <CursorProvider>
+          <Cursor />
+          <CursorFollow>Logo</CursorFollow>
           </CursorProvider>
-
-           
-        <ParticleRing/>
-              <IconSideNav/>
+          <ParticleRing/>
+          <IconSideNav/>
 
         {children}
       </body>
