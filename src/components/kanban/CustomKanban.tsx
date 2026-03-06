@@ -15,7 +15,7 @@ import {
 import { FaJira } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import TaskDetail from "../taskDetail/Task"; 
-import { Task, CardType, ColumnType, PriorityLevel } from "../../interfaces/interfaces";
+import { Task, CardType, ColumnType} from "../../interfaces/interfaces";
 
 const COLUMN_COLORS = {
   backlog: "border-t-4 border-t-slate-400",
@@ -227,7 +227,6 @@ const Column: React.FC<{
   );
 };
 
-// We include 'content' here, but it might be undefined since it is optional now
 const Card: React.FC<CardType & { 
   onCardClick: (card: CardType) => void; 
   handleDragStart: Function 
@@ -248,7 +247,7 @@ const Card: React.FC<CardType & {
       <div className="flex flex-col mb-2">
         <p className="text-sm text-slate-800 leading-snug font-medium">{title}</p>
         
-        {/* THIS IS THE MAGIC CHECK: It only shows the content text if 'content' actually exists! */}
+        {/* Only shows the content text if 'content' actually exists! */}
         {content && (
           <p className="text-xs text-slate-500 mt-1 line-clamp-2">{content}</p>
         )}
@@ -268,10 +267,29 @@ const Card: React.FC<CardType & {
   );
 };
 
-const PriorityIcon = ({ priority }: { priority: PriorityLevel }) => {
-  if (priority === 1) return <div className="bg-red-100 p-0.5 rounded"><FiArrowUp className="text-red-600 text-xs" /></div>;
-  if (priority === 2) return <div className="bg-amber-100 p-0.5 rounded"><FiMinus className="text-amber-600 text-xs" /></div>;
-  return <div className="bg-blue-100 p-0.5 rounded"><FiArrowDown className="text-blue-600 text-xs" /></div>;
+const PriorityIcon = ({ priority }: { priority: number }) => {
+  // If it gets out to be a string we ensure it to be a number.
+  const level = Number(priority);
+
+  if (level === 3) {
+    return (
+      <div className="flex items-center gap-1 w-max bg-red-100 px-1.5 py-0.5 rounded text-red-700 text-xs font-medium border border-red-200">
+        <FiArrowUp /> High
+      </div>
+    );
+  }
+  if (level === 2) {
+    return (
+      <div className="flex items-center gap-1 w-max bg-green-100 px-1.5 py-0.5 rounded text-green-700 text-xs font-medium border border-green-200">
+        <FiMinus /> Medium
+      </div>
+    );
+  }
+  return (
+    <div className="flex items-center gap-1 w-max bg-slate-100 px-1.5 py-0.5 rounded text-slate-700 text-xs font-medium border border-slate-200">
+      <FiArrowDown /> Low
+    </div>
+  );
 };
 
 const Avatar = ({ initials, color = "bg-blue-500", size = "w-8 h-8 text-xs" }: { initials: string, color?: string, size?: string }) => (
@@ -284,40 +302,23 @@ const AddCard: React.FC<{ column: ColumnType; setCards: React.Dispatch<React.Set
   const [isAdding, setIsAdding] = useState(false);
   const [titleText, setTitleText] = useState("");
   const [contentText, setContentText] = useState("");
-  const [tasks, setTasks] = useState<Task[]>([]);
-
-  // Fetch tasks from backend
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const res = await fetch("/api/users/kanban");
-        if (res.ok) {
-           const data = await res.json();
-           setTasks(data.data || []); 
-        }
-      } catch (error) {
-        console.error("Failed to fetch tasks", error);
-      }
-    };
-    fetchTasks();
-  }, []);
+  const [priority, setPriority] = useState<number>(0); 
 
   const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // The Title is required, so we check that first
     if (!titleText.trim()) {
         setIsAdding(false);
         return;
     }
 
     const newCard: CardType = {
-      id: Math.random().toString().substring(2,3),
-      ticketId: `WEB-${Math.floor(Math.random() * 1000)}`, 
+      id: crypto.randomUUID(), 
+      ticketId: `#${Math.floor(Math.random() * 1000)}`, 
       title: titleText,
-      content: contentText, // This will just be empty string if they didn't type anything
+      content: contentText,
       column,
-      priority: 2,
+      priority: priority,
     };
 
     try {
@@ -329,27 +330,25 @@ const AddCard: React.FC<{ column: ColumnType; setCards: React.Dispatch<React.Set
 
       if (res.ok) {
         const data = await res.json();
-        // Add it to our local board so we can see it right away!
         setCards((prev) => [...prev, data.newCard || newCard]); 
         
-        // Clear out the text boxes
         setTitleText("");
         setContentText("");
+        setPriority(0);
         setIsAdding(false);
       }
     } catch (error) {
       console.error("Error creating task", error);
-      // Fallback: Add it to the board even if API fails locally (for testing)
       setCards((prev) => [...prev, newCard]);
       setTitleText("");
       setContentText("");
+      setPriority(0);
       setIsAdding(false);
     }
   };
 
   return isAdding ? (
     <motion.form layout onSubmit={handleAddTask} className="mt-2 flex flex-col gap-2">
-      {/* Required Title Box */}
       <input
         autoFocus
         value={titleText}
@@ -358,7 +357,6 @@ const AddCard: React.FC<{ column: ColumnType; setCards: React.Dispatch<React.Set
         className="w-full rounded border border-blue-400 bg-white p-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
         required
       />
-      {/* Optional Content Box */}
       <textarea
         value={contentText}
         onChange={(e) => setContentText(e.target.value)}
@@ -366,6 +364,19 @@ const AddCard: React.FC<{ column: ColumnType; setCards: React.Dispatch<React.Set
         className="w-full rounded border border-slate-300 bg-white p-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
         rows={2}
       />
+      
+      {/*Selection of Priority*/}
+      <select
+        value={priority}
+        onChange={(e) => setPriority(Number(e.target.value))}
+        className="w-full rounded border border-slate-300 bg-white p-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer"
+        required
+      >
+        <option value={0} disabled hidden>Select Priority</option>
+        <option value={1}>1 - Low</option>
+        <option value={2}>2 - Medium</option>
+        <option value={3}>3 - High</option>
+      </select>
       
       <div className="flex items-center gap-2 mt-1">
           <button type="submit" className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-700 font-medium transition-colors">Add</button>
@@ -404,9 +415,8 @@ const TrashBin: React.FC<{ setCards: React.Dispatch<React.SetStateAction<CardTyp
       className={`fixed bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-2 px-6 py-3 rounded-full shadow-xl transition-all duration-300 z-50 ${
         active
           ? "bg-red-600 text-white scale-110 shadow-red-500/50"
-          : "bg-white text-slate-500 border border-slate-200 translate-y-24 opacity-0 pointer-events-none drag-visible-target" 
+          : "bg-white text-slate-500 border border-slate-200 hover:border-red-300" 
       }`}
-      style={{ opacity: active ? 1 : 0.5, transform: active ? 'translate(-50%, 0)' : 'translate(-50%, 150px)' }} 
     >
       <FiTrash className="text-lg" />
       <span className="font-medium">Drop to remove</span>

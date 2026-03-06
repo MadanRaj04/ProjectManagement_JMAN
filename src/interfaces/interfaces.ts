@@ -1,8 +1,8 @@
 export interface Task {
-  task_id?: string;
-  project_id?: string;
-  asignee?: string;
-  title?: string;
+  task_id: string;
+  project_id: string;
+  asignee: string;
+  title: string;
   content: string;
 }
 
@@ -12,9 +12,8 @@ export interface CardType {
   title: string;
   content: string;
   column: ColumnType;
-  priority: PriorityLevel;
+  priority: number;
   assignee?: string; 
 }
 
 export type ColumnType = "backlog" | "todo" | "doing" | "done";
-export type PriorityLevel = 1 | 2 | 3;
