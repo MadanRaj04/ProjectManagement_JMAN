@@ -1,4 +1,4 @@
-import  {CustomKanban}  from "./kanban/CustomKanban"
+import  {CustomKanban}  from "./kanbanBoard/kanban"
 
 const IconSideNav = () => {
   return (

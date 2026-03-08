@@ -1,4 +1,4 @@
-import { CardType } from "@/src/interfaces/interfaces"; // Make sure to import CardType instead of Task
+import { CardType } from "@/src/data/interfaces"; // Make sure to import CardType instead of Task
 import { NextResponse } from "next/server";
 
 // Temporary storage (Will reset if the server restarts!)

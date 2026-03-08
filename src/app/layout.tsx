@@ -5,6 +5,7 @@ import IconSideNav from "../components/IconSideNav"
 import ParticleRing from "../components/particlebackground/ParticleRing";
 import { Cursor, CursorFollow, CursorProvider } from "@/src/components/animate-ui/components/animate/cursor";
 import Login from "../components/login/Login";
+import { CustomKanban } from "../components/kanbanBoard/kanban";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -30,12 +31,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >        
-          <CursorProvider>
+          {/* <CursorProvider>
           <Cursor />
           <CursorFollow>Logo</CursorFollow>
           </CursorProvider>
           <ParticleRing/>
-          <IconSideNav/>
+          <IconSideNav/> */}
+
+          <CustomKanban />
 
         {children}
       </body>
