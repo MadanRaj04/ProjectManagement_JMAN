@@ -19,36 +19,38 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
 
-    const { title, projectId, assignedToId } = await request.json();
+    const { title, description, priority, status, projectId, assignedToId } = await request.json();
 
     if (!title || !projectId) {
       return NextResponse.json({ error: 'Title and Project ID are required' }, { status: 400 });
     }
 
     const project = await prisma.project.findUnique({
-        where: { id: projectId },
-        include: { members: true }
+      where: { id: projectId },
+      include: { members: true }
     });
 
     if (!project) return NextResponse.json({ error: 'Project not found' }, { status: 404 });
 
     const isManager = project.managerId === user.userId;
-    const isMember = project.members.some(m => m.userId === user.userId);
+    const isMember  = project.members.some(m => m.userId === user.userId);
 
     if (!isManager && !isMember) {
-         return NextResponse.json({ error: 'Unauthorized to create tasks in this project' }, { status: 403 });
+      return NextResponse.json({ error: 'Unauthorized to create tasks in this project' }, { status: 403 });
     }
 
     const task = await prisma.task.create({
       data: {
         title,
+        description:  description || null,
+        priority:     typeof priority === 'number' ? priority : 2,
+        status:       Object.values(TaskStatus).includes(status) ? status : TaskStatus.TODO,
         projectId,
         assignedToId: assignedToId || null,
-        status: TaskStatus.TODO
       },
       include: {
-          assignedTo: { select: { id: true, username: true } },
-          _count: { select: { comments: true } }
+        assignedTo: { select: { id: true, username: true } },
+        _count:     { select: { comments: true } }
       }
     });
 
@@ -73,36 +75,35 @@ export async function PATCH(request: Request) {
     }
 
     if (!Object.values(TaskStatus).includes(status)) {
-         return NextResponse.json({ error: 'Invalid task status' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid task status' }, { status: 400 });
     }
 
     const existingTask = await prisma.task.findUnique({
-        where: { id: taskId },
-        include: { 
-            project: { include: { members: true } }
-        }
+      where: { id: taskId },
+      include: {
+        project: { include: { members: true } }
+      }
     });
 
     if (!existingTask) return NextResponse.json({ error: 'Task not found' }, { status: 404 });
 
     const isManager = existingTask.project.managerId === user.userId;
-    const isMember = existingTask.project.members.some(m => m.userId === user.userId);
+    const isMember  = existingTask.project.members.some(m => m.userId === user.userId);
 
     if (!isManager && !isMember) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
     const updatedTask = await prisma.task.update({
-        where: { id: taskId },
-        data: { status },
-        include: {
-            assignedTo: { select: { id: true, username: true } },
-            _count: { select: { comments: true } }
-        }
+      where: { id: taskId },
+      data:  { status },
+      include: {
+        assignedTo: { select: { id: true, username: true } },
+        _count:     { select: { comments: true } }
+      }
     });
 
     return NextResponse.json({ task: updatedTask, message: 'Task updated successfully' });
-
   } catch (error) {
     console.error('Tasks PATCH error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

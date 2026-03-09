@@ -1,11 +1,26 @@
 "use client";
 
 import * as React from "react";
-import { MessageSquare, Clock, Trash2 } from "lucide-react";
-import { Badge } from "@/components/ui/Badge";
+import { MessageSquare, Trash2 } from "lucide-react";
 import { TaskStatus } from "@prisma/client";
-import { formatDistanceToNow } from "date-fns";
 
+/* ─── Priority helpers ───────────────────────────────────────────────── */
+const PRIORITY_MAP: Record<number, { label: string; css: string }> = {
+  1: { label: "High", css: "bg-red-100 text-red-600 border-red-200" },
+  2: { label: "Med",  css: "bg-yellow-100 text-yellow-600 border-yellow-200" },
+  3: { label: "Low",  css: "bg-blue-100 text-blue-500 border-blue-200" },
+};
+
+const PriorityTag = ({ priority }: { priority?: number }) => {
+  const { label, css } = PRIORITY_MAP[priority ?? 2];
+  return (
+    <span className={`rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${css}`}>
+      {label}
+    </span>
+  );
+};
+
+/* ─── Types ──────────────────────────────────────────────────────────── */
 interface User {
   id: string;
   username: string;
@@ -14,6 +29,8 @@ interface User {
 interface Task {
   id: string;
   title: string;
+  description?: string | null;
+  priority?: number;
   status: TaskStatus;
   assignedTo: User | null;
   _count: { comments: number };
@@ -25,51 +42,62 @@ interface TaskCardProps {
   onDelete?: () => void;
 }
 
+/* ─── Component ──────────────────────────────────────────────────────── */
 export function TaskCard({ task, isManager, onDelete }: TaskCardProps) {
   return (
-    <div className="glass-card group flex cursor-grab flex-col gap-3 p-4 active:cursor-grabbing relative">
+    <div className="group relative rounded-lg border border-gray-200 bg-white p-3 shadow-sm hover:shadow-md hover:border-gray-300 transition-all">
+      {/* Delete — manager only */}
       {isManager && onDelete && (
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-          className="absolute right-2 top-2 rounded-md p-1.5 text-muted-foreground opacity-0 hover:bg-destructive/10 hover:text-destructive transition-all group-hover:opacity-100"
+          onClick={(e) => { e.stopPropagation(); onDelete(); }}
+          className="absolute right-2 top-2 rounded p-1 text-gray-400 opacity-0 hover:bg-red-50 hover:text-red-500 transition-all group-hover:opacity-100"
           title="Delete Task"
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="h-3.5 w-3.5" />
         </button>
       )}
-      <div className="flex items-start justify-between gap-2 pr-6">
-        <h4 className="font-medium text-sm leading-snug group-hover:text-primary transition-colors">
-          {task.title}
-        </h4>
+
+      {/* Priority */}
+      <div className="mb-2">
+        <PriorityTag priority={task.priority} />
       </div>
 
-      <div className="mt-auto pt-2 flex items-center justify-between border-t border-border/50">
-        <div className="flex items-center gap-2">
-          {task.assignedTo ? (
-            <div 
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-brand-100 to-indigo-100 text-xs font-semibold text-brand-900 shadow-sm border border-brand-200"
-              title={`Assigned to ${task.assignedTo.username}`}
-            >
-              {task.assignedTo.username.charAt(0).toUpperCase()}
-            </div>
-          ) : (
-             <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted border border-border text-xs text-muted-foreground shadow-sm decoration-dashed" title="Unassigned">
-              ?
-            </div>
-          )}
-        </div>
+      {/* Title */}
+      <p className="text-sm font-medium text-gray-800 pr-6 leading-snug">
+        {task.title}
+      </p>
 
-        <div className="flex items-center gap-3 text-muted-foreground">
-          {task._count.comments > 0 && (
-            <div className="flex items-center text-xs font-medium gap-1">
-              <MessageSquare className="h-3.5 w-3.5" />
-              <span>{task._count.comments}</span>
-            </div>
-          )}
-        </div>
+      {/* Description preview */}
+      {task.description && (
+        <p className="mt-1 text-xs text-gray-400 line-clamp-2 pr-6">
+          {task.description}
+        </p>
+      )}
+
+      {/* Footer */}
+      <div className="mt-3 pt-2 flex items-center justify-between border-t border-gray-100">
+        {task.assignedTo ? (
+          <div
+            className="flex h-6 w-6 items-center justify-center rounded-full bg-violet-100 text-[10px] font-semibold text-violet-700 border border-violet-200"
+            title={`Assigned to ${task.assignedTo.username}`}
+          >
+            {task.assignedTo.username.charAt(0).toUpperCase()}
+          </div>
+        ) : (
+          <div
+            className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 border border-gray-200 text-[10px] text-gray-400"
+            title="Unassigned"
+          >
+            ?
+          </div>
+        )}
+
+        {task._count.comments > 0 && (
+          <div className="flex items-center gap-1 text-[11px] text-gray-400">
+            <MessageSquare className="h-3.5 w-3.5" />
+            <span>{task._count.comments}</span>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,51 +1,83 @@
-import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import { verifyToken } from '@/lib/auth';
-import { cookies } from 'next/headers';
+import { NextRequest, NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
+import { verifyToken } from "@/lib/auth";
+import { cookies } from "next/headers";
 
 const prisma = new PrismaClient();
 
-async function getManagerUser() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('token')?.value;
-  if (!token) return null;
-  const payload = verifyToken(token);
-  if (!payload || payload.role !== 'MANAGER') return null;
-  return payload;
+// GET /api/tasks/[taskId]
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ taskId: string }> }
+) {
+  const { taskId } = await params;
+
+  const task = await prisma.task.findUnique({
+    where: { id: taskId },
+    include: {
+      assignedTo: { select: { id: true, username: true } },
+      comments: {
+        orderBy: { createdAt: "asc" },
+        include: { user: { select: { id: true, username: true } } },
+      },
+    },
+  });
+
+  if (!task) return NextResponse.json({ error: "Task not found" }, { status: 404 });
+  return NextResponse.json(task);
 }
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: { taskId: string } }
+// PATCH /api/tasks/[taskId]
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ taskId: string }> }
 ) {
-  try {
-    const manager = await getManagerUser();
-    if (!manager) {
-      return NextResponse.json({ error: "Unauthorized. Only managers can delete tasks." }, { status: 401 });
-    }
+  const { taskId } = await params;
 
-    const { taskId } = await params;
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  if (!token || !verifyToken(token))
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const task = await prisma.task.findUnique({
-      where: { id: taskId },
-      include: { project: true },
-    });
+  const body = await req.json();
+  const { title, description, status, assignedToId, priority } = body;
 
-    if (!task) {
-      return NextResponse.json({ error: "Task not found" }, { status: 404 });
-    }
+  const task = await prisma.task.update({
+    where: { id: taskId },
+    data: {
+      ...(title !== undefined && { title }),
+      ...(description !== undefined && { description }),
+      ...(status !== undefined && { status }),
+      ...(priority !== undefined && { priority }),
+      ...(assignedToId !== undefined && {
+        assignedTo: assignedToId
+          ? { connect: { id: assignedToId } }
+          : { disconnect: true },
+      }),
+    },
+    include: {
+      assignedTo: { select: { id: true, username: true } },
+    },
+  });
 
-    if (task.project.managerId !== manager.userId) {
-      return NextResponse.json({ error: "Unauthorized. You do not manage this project." }, { status: 403 });
-    }
+  return NextResponse.json(task);
+}
 
-    await prisma.task.delete({
-      where: { id: taskId },
-    });
+// DELETE /api/tasks/[taskId]
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ taskId: string }> }
+) {
+  const { taskId } = await params;
 
-    return NextResponse.json({ success: true, message: "Task deleted successfully" });
-  } catch (error) {
-    console.error("Delete task err:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-  }
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  if (!token || !verifyToken(token))
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  // Delete comments first (FK constraint), then the task
+  await prisma.taskComment.deleteMany({ where: { taskId } });
+  await prisma.task.delete({ where: { id: taskId } });
+
+  return new NextResponse(null, { status: 204 });
 }

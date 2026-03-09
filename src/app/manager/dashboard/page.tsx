@@ -58,7 +58,7 @@ export default function ManagerDashboard() {
       if (res.ok) {
         setNewProjectName("");
         setIsModalOpen(false);
-        fetchProjects(); // Refresh list
+        fetchProjects();
       }
     } catch (error) {
       console.error(error);

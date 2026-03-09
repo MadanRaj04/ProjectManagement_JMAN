@@ -30,7 +30,6 @@ export default function LandingPage() {
 
       <main className="flex-1">
         <section className="relative overflow-hidden pt-32 pb-20 md:pt-48 md:pb-32">
-          {/* Background effects */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] opacity-20 dark:opacity-30 pointer-events-none">
             <div className="absolute inset-0 bg-gradient-to-r from-brand-400 to-indigo-500 blur-[100px] rounded-full mix-blend-multiply dark:mix-blend-screen" />
           </div>

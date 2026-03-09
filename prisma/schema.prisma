@@ -84,19 +84,21 @@ enum Role {
   MANAGER
   USER
 }
+
 model Task {
-  id        String   @id @default(uuid())
-  title     String
-  status    TaskStatus @default(TODO)
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  priority    Int        @default(2)  
+  status      TaskStatus @default(TODO)
 
-  project   Project  @relation(fields: [projectId], references: [id])
-  projectId String
+  project     Project    @relation(fields: [projectId], references: [id])
+  projectId   String
 
-  assignedTo   User? @relation(fields: [assignedToId], references: [id])
+  assignedTo   User?   @relation(fields: [assignedToId], references: [id])
   assignedToId String?
 
-  comments TaskComment[]
-
+  comments  TaskComment[]
   createdAt DateTime @default(now())
 }
 
