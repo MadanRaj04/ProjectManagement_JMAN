@@ -24,9 +24,8 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized. Only managers can delete tasks." }, { status: 401 });
     }
 
-    const { taskId } = params;
+    const { taskId } = await params;
 
-    // Verify task exists and belongs to a project the manager owns
     const task = await prisma.task.findUnique({
       where: { id: taskId },
       include: { project: true },
@@ -40,7 +39,6 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized. You do not manage this project." }, { status: 403 });
     }
 
-    // Delete the task
     await prisma.task.delete({
       where: { id: taskId },
     });

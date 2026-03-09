@@ -17,9 +17,11 @@ export default function ManagerProjectView() {
   const [project, setProject] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   
+  // Modals
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   
+  // Forms
   const [inviteEmail, setInviteEmail] = useState("");
   const [taskTitle, setTaskTitle] = useState("");
   const [assignedToId, setAssignedToId] = useState("");
@@ -93,7 +95,7 @@ export default function ManagerProjectView() {
         setTaskTitle("");
         setAssignedToId("");
         setIsTaskModalOpen(false);
-        fetchProjectDetails(); 
+        fetchProjectDetails();
       }
     } catch (error) {
       console.error(error);
@@ -122,7 +124,7 @@ export default function ManagerProjectView() {
         method: "DELETE",
       });
       if (res.ok) {
-        fetchProjectDetails(); 
+        fetchProjectDetails();
       } else {
         const data = await res.json();
         alert(data.error || "Failed to delete task");
@@ -187,6 +189,7 @@ export default function ManagerProjectView() {
         />
       </div>
 
+      {/* Invite Modal */}
       <Modal isOpen={isInviteModalOpen} onClose={() => setIsInviteModalOpen(false)} title="Invite Team Member">
          <form onSubmit={handleInviteUser} className="space-y-6">
           <div className="space-y-2">
@@ -212,6 +215,7 @@ export default function ManagerProjectView() {
         </form>
       </Modal>
 
+      {/* Add Task Modal */}
       <Modal isOpen={isTaskModalOpen} onClose={() => setIsTaskModalOpen(false)} title="Create New Task">
          <form onSubmit={handleCreateTask} className="space-y-6">
           <div className="space-y-4">

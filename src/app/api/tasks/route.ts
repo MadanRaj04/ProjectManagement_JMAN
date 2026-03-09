@@ -12,7 +12,6 @@ async function getUser() {
   return verifyToken(token);
 }
 
-// Create a new task
 export async function POST(request: Request) {
   try {
     const user = await getUser();
@@ -26,7 +25,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Title and Project ID are required' }, { status: 400 });
     }
 
-    // Verify authorized access to project (Manager or Member)
     const project = await prisma.project.findUnique({
         where: { id: projectId },
         include: { members: true }
@@ -61,7 +59,6 @@ export async function POST(request: Request) {
   }
 }
 
-// Update a task (primarily for drag and drop status changes)
 export async function PATCH(request: Request) {
   try {
     const user = await getUser();
@@ -79,7 +76,6 @@ export async function PATCH(request: Request) {
          return NextResponse.json({ error: 'Invalid task status' }, { status: 400 });
     }
 
-    // Verify the task exists and user has access to its project
     const existingTask = await prisma.task.findUnique({
         where: { id: taskId },
         include: { 

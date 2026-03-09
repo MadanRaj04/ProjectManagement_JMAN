@@ -1,65 +1,121 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import Link from "next/link";
+import { ArrowRight, CheckCircle2, LayoutDashboard, Users, Zap } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+
+export default function LandingPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="flex min-h-screen flex-col">
+      <header className="fixed top-0 z-50 w-full border-b border-white/10 bg-background/80 backdrop-blur-xl transition-all">
+        <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-8">
+          <div className="flex items-center gap-2 text-xl font-bold tracking-tight">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-indigo-600 text-white shadow-lg">
+              TM
+            </div>
+            <span className="text-gradient">TaskMaster</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="/login">
+              <Button variant="ghost" className="hidden sm:inline-flex">Sign In</Button>
+            </Link>
+            <Link href="/register">
+              <Button className="bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 shadow-xl shadow-brand-500/20">
+                Get Started
+              </Button>
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+      </header>
+
+      <main className="flex-1">
+        <section className="relative overflow-hidden pt-32 pb-20 md:pt-48 md:pb-32">
+          {/* Background effects */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] opacity-20 dark:opacity-30 pointer-events-none">
+            <div className="absolute inset-0 bg-gradient-to-r from-brand-400 to-indigo-500 blur-[100px] rounded-full mix-blend-multiply dark:mix-blend-screen" />
+          </div>
+
+          <div className="container relative mx-auto px-4 text-center md:px-8">
+            <div className="mx-auto max-w-4xl animate-in fade-in slide-in-from-bottom-8 duration-1000 fill-mode-both">
+              <div className="mb-6 flex justify-center">
+                <span className="inline-flex items-center gap-2 rounded-full border border-brand-500/30 bg-brand-500/10 px-4 py-1.5 text-sm font-medium text-brand-600 dark:text-brand-400">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-400 opacity-75"></span>
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-500"></span>
+                  </span>
+                  TaskMaster v2.0 is now live
+                </span>
+              </div>
+              
+              <h1 className="mb-8 text-5xl font-extrabold tracking-tight sm:text-6xl md:text-7xl lg:text-8xl">
+                Manage work. <br />
+                <span className="text-gradient">Deliver faster.</span>
+              </h1>
+              
+              <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground sm:text-xl leading-relaxed">
+                The premium project management platform built for modern teams.
+                Experience seamless collaboration with our ultra-fast, role-based Kanban boards.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Link href="/register">
+                  <Button size="lg" className="h-14 px-8 text-lg w-full sm:w-auto bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 shadow-xl shadow-brand-500/20">
+                    Start for free
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+                <Link href="/login">
+                  <Button size="lg" variant="outline" className="h-14 px-8 text-lg w-full sm:w-auto glass border-border/50">
+                    Sign in to Workspace
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-t border-border/50 bg-muted/30 py-20">
+          <div className="container mx-auto px-4 md:px-8">
+            <div className="mb-16 text-center">
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-gradient">Why TaskMaster?</h2>
+            </div>
+            
+            <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
+              {[
+                {
+                  icon: LayoutDashboard,
+                  title: "Intuitive Kanban",
+                  description: "Drag and drop tasks effortlessly. Visualize your workflow with our premium, glassmorphic board interface."
+                },
+                {
+                  icon: Users,
+                  title: "Role-Based Access",
+                  description: "Secure workspaces with strict Manager and User portals. Control exactly who sees what."
+                },
+                {
+                  icon: Zap,
+                  title: "Lightning Fast",
+                  description: "Built on Next.js 15 and PostgreSQL. Experience real-time speed with zero loading spinners."
+                }
+              ].map((feature, i) => (
+                <div key={i} className="glass-card p-8 text-center sm:text-left flex flex-col items-center sm:items-start transition-transform hover:-translate-y-1">
+                  <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-500/10 text-brand-600 dark:text-brand-400 ring-1 ring-brand-500/20">
+                    <feature.icon className="h-7 w-7" />
+                  </div>
+                  <h3 className="mb-3 text-xl font-semibold">{feature.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
+
+      <footer className="border-t border-border/50 py-10 bg-surface/50 backdrop-blur-md">
+        <div className="container mx-auto px-4 text-center text-muted-foreground md:px-8">
+          <p>© {new Date().getFullYear()} TaskMaster Inc. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   );
 }
