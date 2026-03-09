@@ -13,6 +13,40 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      setIsLoading(true);
+      setError("");
+
+      const formData = new FormData(e.currentTarget);
+      const email = formData.get("email") as string;
+      const password = formData.get("password") as string;
+
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || "Login failed");
+        }
+
+        if (data.user.role === "MANAGER") {
+          router.push("/manager/dashboard");
+        } else {
+          router.push("/user/dashboard");
+        }
+        router.refresh(); 
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
   return (
     <div className="flex min-h-screen items-center justify-center p-4 bg-muted/30">
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -39,7 +73,7 @@ export default function LoginPage() {
               Enter your credentials to access your workspace
             </CardDescription>
           </CardHeader>
-          <form>
+          <form onSubmit={handleLogin}>
             <CardContent className="space-y-4 pt-4">
               {error && (
                 <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive border border-destructive/20">
@@ -90,4 +124,5 @@ export default function LoginPage() {
       </div>
     </div>
   );
+
 }
