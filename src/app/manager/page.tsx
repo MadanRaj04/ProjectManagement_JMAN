@@ -61,7 +61,7 @@ export default function ManagerDashboard() {
       {projects.map((project) => (
         <div key={project.id}>
           <Link href={`/manager/project/${project.id}`}>
-            📁 {project.name}
+             {project.name}
           </Link>
         </div>
       ))}

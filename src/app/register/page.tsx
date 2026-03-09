@@ -10,8 +10,8 @@ import { ArrowLeft } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
   const [role, setRole] = useState<"USER" | "MANAGER">("USER");
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -54,7 +54,7 @@ export default function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center p-4 bg-muted/30">
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[10%] -left-[10%] w-[50%] h-[50%] rounded-full bg-brand-500/10 blur-[120px]" />
-        <div className="absolute -bottom-[20%] -right-[10%] w-[40%] h-[40%] rounded-full bg-indigo-500/10 blur-[120px]" />
+        <div className="absolute -bottom-[20%] -right-[10%] w-[40%] h-[40%] rounded-full blur-[120px]" />
       </div>
 
       <div className="w-full max-w-md relative z-10 animate-in fade-in zoom-in-95 duration-500">
@@ -68,8 +68,8 @@ export default function RegisterPage() {
         
         <Card className="glass-card border-none shadow-2xl">
           <CardHeader className="space-y-1 text-center">
-             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-indigo-600 shadow-md">
-              <span className="text-xl font-bold text-white">TM</span>
+             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg shadow-md">
+              <span className="text-xl font-bold">TM</span>
             </div>
             <CardTitle className="text-2xl font-bold tracking-tight">Create an account</CardTitle>
             <CardDescription className="text-muted-foreground">
@@ -145,7 +145,7 @@ export default function RegisterPage() {
               </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-4 mt-2">
-              <Button className="w-full bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500" type="submit" isLoading={isLoading}>
+              <Button className="w-full" type="submit" isLoading={isLoading}>
                 Create Account
               </Button>
               <div className="text-center text-sm text-muted-foreground">

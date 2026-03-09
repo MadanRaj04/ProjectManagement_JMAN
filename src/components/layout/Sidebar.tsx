@@ -39,7 +39,7 @@ export function Sidebar({ role }: SidebarProps) {
     <div className="flex h-screen w-64 flex-col border-r border-border bg-surface/50 backdrop-blur-xl">
       <div className="flex h-16 items-center px-6 border-b border-border text-lg font-bold">
         <div className="flex items-center gap-2 text-gradient">
-          <div className="h-6 w-6 rounded-md bg-gradient-to-br from-brand-500 to-indigo-600 flex items-center justify-center text-white text-xs shadow-md">
+          <div className="h-6 w-6 rounded-md flex items-center justify-center text-xs shadow-md">
             TM
           </div>
           TaskMaster

@@ -7,8 +7,8 @@ export default function UserLayout({
 }) {
   return (
     <div className="flex h-screen w-full bg-background overflow-hidden selection:bg-brand-500/30">
-        <div className="absolute top-0 right-0 -z-10 w-[800px] h-[600px] opacity-20 pointer-events-none">
-            <div className="absolute inset-0 bg-gradient-to-bl from-indigo-300 to-transparent blur-[120px] rounded-full" />
+        <div className="absolute top-0 right-0 -z-10 w-200 h-150 opacity-20 pointer-events-none">
+            <div className="absolute inset-0 rounded-full" /> 
         </div>
       <Sidebar role="USER" />
       <main className="flex-1 overflow-y-auto p-8 relative">

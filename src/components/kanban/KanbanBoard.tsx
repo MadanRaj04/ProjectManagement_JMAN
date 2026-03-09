@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import React, { useState } from "react";
 import { TaskStatus } from "@prisma/client";
 import { TaskCard } from "./TaskCard";
 import { TaskDetailPanel } from "./Taskdetail";
@@ -50,7 +50,7 @@ const DropIndicator = ({
   />
 );
 
-/* ─── Column ─────────────────────────────────────────────────────────── */
+
 interface ColumnProps {
   column: TaskStatus;
   title: string;
@@ -74,7 +74,7 @@ const Column = ({
   onCardClick,
   onTaskDelete,
 }: ColumnProps) => {
-  const [active, setActive] = React.useState(false);
+  const [active, setActive] = useState<boolean>(false);
   const columnTasks = tasks.filter((t) => t.status === column);
 
   const handleDragStart = (e: React.DragEvent, task: Task) => {
@@ -165,7 +165,7 @@ const Column = ({
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
-        className={`min-h-[160px] rounded-xl border p-2 transition-colors ${
+        className={`min-h-40 rounded-xl border p-2 transition-colors ${
           active ? "bg-violet-50 border-violet-300" : "bg-gray-50 border-gray-200"
         }`}
       >

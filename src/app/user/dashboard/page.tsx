@@ -23,7 +23,7 @@ interface UserData {
 export default function UserDashboard() {
   const router = useRouter();
   const [data, setData] = useState<UserData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -50,7 +50,7 @@ export default function UserDashboard() {
   if (isLoading) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-r-transparent"></div>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-r-transparent"></div>
       </div>
     );
   }
@@ -67,7 +67,7 @@ export default function UserDashboard() {
       <div className="grid gap-6 md:grid-cols-2">
         <div className="space-y-4">
           <h2 className="text-xl font-semibold flex items-center gap-2">
-            <Briefcase className="h-5 w-5 text-indigo-500" />
+            <Briefcase className="h-5 w-5" />
             My Projects
           </h2>
           <div className="grid gap-4">
@@ -78,9 +78,9 @@ export default function UserDashboard() {
              ) : (
                 (data.projects || []).map((p) => (
                     <Link key={p.project.id} href={`/user/projects/${p.project.id}`}>
-                        <Card className="glass cursor-pointer transition-all duration-300 hover:shadow-md hover:border-indigo-500/50 group">
+                        <Card className="glass cursor-pointer transition-all duration-300 hover:shadow-md ">
                             <CardHeader className="py-4">
-                               <CardTitle className="text-lg group-hover:text-indigo-600 transition-colors">
+                               <CardTitle className="text-lg transition-colors">
                                    {p.project.name}
                                </CardTitle>
                                <CardDescription>Click to view board</CardDescription>

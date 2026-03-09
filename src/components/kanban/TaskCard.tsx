@@ -1,6 +1,3 @@
-"use client";
-
-import * as React from "react";
 import { MessageSquare, Trash2 } from "lucide-react";
 import { TaskStatus } from "@prisma/client";
 
@@ -20,7 +17,7 @@ const PriorityTag = ({ priority }: { priority?: number }) => {
   );
 };
 
-/* ─── Types ──────────────────────────────────────────────────────────── */
+
 interface User {
   id: string;
   username: string;
@@ -42,7 +39,6 @@ interface TaskCardProps {
   onDelete?: () => void;
 }
 
-/* ─── Component ──────────────────────────────────────────────────────── */
 export function TaskCard({ task, isManager, onDelete }: TaskCardProps) {
   return (
     <div className="group relative rounded-lg border border-gray-200 bg-white p-3 shadow-sm hover:shadow-md hover:border-gray-300 transition-all">

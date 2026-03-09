@@ -20,21 +20,17 @@ const PRIORITY_OPTIONS = [
 export default function ManagerProjectView() {
   const params = useParams();
   const router = useRouter();
-  const [project, setProject]     = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-  const [isTaskModalOpen, setIsTaskModalOpen]     = useState(false);
-
-  const [inviteEmail, setInviteEmail]   = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // ── Create task form state ──────────────────────────────────────────
-  const [taskTitle, setTaskTitle]         = useState("");
-  const [taskDescription, setTaskDesc]   = useState("");
-  const [taskPriority, setTaskPriority]   = useState(2);
+  const [project, setProject] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState<boolean>(false);
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState<boolean>(false);
+  const [inviteEmail, setInviteEmail]   = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [taskTitle, setTaskTitle]         = useState<string>("");
+  const [taskDescription, setTaskDesc]   = useState<string>("");
+  const [taskPriority, setTaskPriority]   = useState<number>(2);
   const [taskStatus, setTaskStatus]       = useState<TaskStatus>(TaskStatus.TODO);
-  const [assignedToId, setAssignedToId]   = useState("");
+  const [assignedToId, setAssignedToId]   = useState<string>("");
 
   const fetchProjectDetails = async () => {
     try {
@@ -56,7 +52,7 @@ export default function ManagerProjectView() {
     fetchProjectDetails();
   }, [params.id, router]);
 
-  // ── Invite ──────────────────────────────────────────────────────────
+
   const handleInviteUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inviteEmail) return;
@@ -82,7 +78,7 @@ export default function ManagerProjectView() {
     }
   };
 
-  // ── Create task ─────────────────────────────────────────────────────
+
   const resetTaskForm = () => {
     setTaskTitle("");
     setTaskDesc("");
@@ -120,7 +116,6 @@ export default function ManagerProjectView() {
     }
   };
 
-  // ── Task move / delete ──────────────────────────────────────────────
   const handleTaskMove = async (taskId: string, newStatus: TaskStatus) => {
     const res = await fetch("/api/tasks", {
       method: "PATCH",
@@ -146,7 +141,6 @@ export default function ManagerProjectView() {
     }
   };
 
-  // ── Render ──────────────────────────────────────────────────────────
   if (isLoading) {
     return (
       <div className="flex h-[80vh] items-center justify-center">
@@ -187,7 +181,7 @@ export default function ManagerProjectView() {
               Invite
             </Button>
             <Button
-              className="bg-gradient-to-r from-brand-600 to-indigo-600 shadow-md shadow-brand-500/20"
+              className="shadow-md shadow-brand-500/20"
               onClick={() => setIsTaskModalOpen(true)}
             >
               Add Task

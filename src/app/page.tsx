@@ -1,7 +1,5 @@
-"use client";
-
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, LayoutDashboard, Users, Zap } from "lucide-react";
+import { ArrowRight, LayoutDashboard, Users, Zap } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 export default function LandingPage() {
@@ -10,17 +8,14 @@ export default function LandingPage() {
       <header className="fixed top-0 z-50 w-full border-b border-white/10 bg-background/80 backdrop-blur-xl transition-all">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-8">
           <div className="flex items-center gap-2 text-xl font-bold tracking-tight">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-indigo-600 text-white shadow-lg">
-              TM
-            </div>
-            <span className="text-gradient">TaskMaster</span>
+            <span className="text-gradient font-semibold text-2xl">TaskMaster</span>
           </div>
           <div className="flex items-center gap-4">
             <Link href="/login">
               <Button variant="ghost" className="hidden sm:inline-flex">Sign In</Button>
             </Link>
             <Link href="/register">
-              <Button className="bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 shadow-xl shadow-brand-500/20">
+              <Button className="shadow-xl shadow-brand-500/20">
                 Get Started
               </Button>
             </Link>
@@ -30,21 +25,12 @@ export default function LandingPage() {
 
       <main className="flex-1">
         <section className="relative overflow-hidden pt-32 pb-20 md:pt-48 md:pb-32">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] opacity-20 dark:opacity-30 pointer-events-none">
-            <div className="absolute inset-0 bg-gradient-to-r from-brand-400 to-indigo-500 blur-[100px] rounded-full mix-blend-multiply dark:mix-blend-screen" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-250 h-125 opacity-20 dark:opacity-30 pointer-events-none">
+            <div className="absolute inset-0  blur-[100px] rounded-full mix-blend-multiply dark:mix-blend-screen" />
           </div>
 
           <div className="container relative mx-auto px-4 text-center md:px-8">
             <div className="mx-auto max-w-4xl animate-in fade-in slide-in-from-bottom-8 duration-1000 fill-mode-both">
-              <div className="mb-6 flex justify-center">
-                <span className="inline-flex items-center gap-2 rounded-full border border-brand-500/30 bg-brand-500/10 px-4 py-1.5 text-sm font-medium text-brand-600 dark:text-brand-400">
-                  <span className="relative flex h-2 w-2">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-400 opacity-75"></span>
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-500"></span>
-                  </span>
-                  TaskMaster v2.0 is now live
-                </span>
-              </div>
               
               <h1 className="mb-8 text-5xl font-extrabold tracking-tight sm:text-6xl md:text-7xl lg:text-8xl">
                 Manage work. <br />
@@ -58,7 +44,7 @@ export default function LandingPage() {
               
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link href="/register">
-                  <Button size="lg" className="h-14 px-8 text-lg w-full sm:w-auto bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 shadow-xl shadow-brand-500/20">
+                  <Button size="lg" className="h-14 px-8 text-lg w-full sm:w-auto shadow-xl shadow-brand-500/20">
                     Start for free
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
@@ -112,7 +98,7 @@ export default function LandingPage() {
 
       <footer className="border-t border-border/50 py-10 bg-surface/50 backdrop-blur-md">
         <div className="container mx-auto px-4 text-center text-muted-foreground md:px-8">
-          <p>© {new Date().getFullYear()} TaskMaster Inc. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} TaskMaster Inc. All rights reserved.</p>
         </div>
       </footer>
     </div>

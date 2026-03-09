@@ -12,7 +12,7 @@ export default function UserProjectView() {
   const params = useParams();
   const router = useRouter();
   const [project, setProject] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const fetchProjectDetails = async () => {
     try {
@@ -49,7 +49,7 @@ export default function UserProjectView() {
   if (isLoading) {
     return (
       <div className="flex h-[80vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-r-transparent"></div>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-r-transparent"></div>
       </div>
     );
   }

@@ -18,10 +18,10 @@ interface Project {
 export default function ManagerDashboard() {
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newProjectName, setNewProjectName] = useState("");
-  const [isCreating, setIsCreating] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [newProjectName, setNewProjectName] = useState<string>("");
+  const [isCreating, setIsCreating] = useState<boolean>(false);
 
   const fetchProjects = async () => {
     try {
@@ -82,7 +82,7 @@ export default function ManagerDashboard() {
           <h1 className="text-3xl font-bold tracking-tight">Manager Dashboard</h1>
           <p className="text-muted-foreground mt-1">Manage your teams and oversee project execution.</p>
         </div>
-        <Button onClick={() => setIsModalOpen(true)} className="bg-brand-600 hover:bg-brand-500 shadow-md">
+        <Button onClick={() => setIsModalOpen(true)} className=" hover:bg-brand-500 shadow-md">
           <Plus className="mr-2 h-4 w-4" />
           New Project
         </Button>
@@ -135,7 +135,7 @@ export default function ManagerDashboard() {
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create New Project">
         <form onSubmit={handleCreateProject} className="space-y-6">
-          <div className="space-y-2">
+          <div className="space-y-2 ">
             <label className="text-sm font-medium leading-none" htmlFor="name">
               Project Name
             </label>

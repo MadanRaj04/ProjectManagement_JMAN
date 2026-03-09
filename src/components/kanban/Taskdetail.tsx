@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, AlignLeft, CheckSquare, MessageSquare, Loader2, User2 } from "lucide-react";
 import { TaskStatus } from "@prisma/client";
 
-/* ─── Types ──────────────────────────────────────────────────────────── */
+
 interface UserStub {
   id: string;
   username: string;
@@ -68,23 +68,18 @@ export function TaskDetailPanel({
   members,
   onTaskUpdated,
 }: TaskDetailPanelProps) {
-  const [task, setTask]           = useState<TaskDetail | null>(null);
-  const [loading, setLoading]     = useState(false);
-  const [saving, setSaving]       = useState<string | null>(null); // field key being saved
-
-  // Editable fields
-  const [title, setTitle]         = useState("");
-  const [description, setDesc]    = useState("");
-  const [status, setStatus]       = useState<TaskStatus>(TaskStatus.TODO);
-  const [priority, setPriority]   = useState(2);
+  const [task, setTask] = useState<TaskDetail | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [saving, setSaving] = useState<string | null>(null); 
+  const [title, setTitle] = useState<string>("");
+  const [description, setDesc] = useState<string>("");
+  const [status, setStatus] = useState<TaskStatus>(TaskStatus.TODO);
+  const [priority, setPriority] = useState<number>(2);
   const [assigneeId, setAssignee] = useState<string>("");
-
-  // Comments
-  const [commentText, setComment] = useState("");
-  const [postingComment, setPosting] = useState(false);
+  const [commentText, setComment] = useState<string>("");
+  const [postingComment, setPosting] = useState<boolean>(false);
   const commentsEndRef = useRef<HTMLDivElement>(null);
 
-  /* Fetch full task when panel opens */
   useEffect(() => {
     if (!taskId || !isOpen) return;
     setLoading(true);
@@ -191,7 +186,7 @@ export function TaskDetailPanel({
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 220 }}
-            className="fixed right-0 top-0 z-[60] flex h-screen w-full max-w-2xl flex-col bg-white border-l border-gray-200 shadow-2xl overflow-hidden"
+            className="fixed right-0 top-0 z-60 flex h-screen w-full max-w-2xl flex-col bg-white border-l border-gray-200 shadow-2xl overflow-hidden"
           >
             {loading ? (
               <div className="flex flex-1 items-center justify-center">
