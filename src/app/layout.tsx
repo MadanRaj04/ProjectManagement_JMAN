@@ -5,6 +5,7 @@ import IconSideNav from "../components/IconSideNav"
 import ParticleRing from "../components/particlebackground/ParticleRing";
 import { Cursor, CursorFollow, CursorProvider } from "@/src/components/animate-ui/components/animate/cursor";
 import Login from "../components/login/Login";
+import ProjectsPage from "./projects/page";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -34,7 +35,7 @@ export default function RootLayout({
             <Cursor />
             <CursorFollow>Logo</CursorFollow>
           </CursorProvider>
-
+          <ProjectsPage />
            
         <ParticleRing/>
               <IconSideNav/>
