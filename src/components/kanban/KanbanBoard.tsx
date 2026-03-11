@@ -20,6 +20,18 @@ interface Task {
   _count: { comments: number };
 }
 
+interface ColumnProps {
+  column: TaskStatus;
+  title: string;
+  headingColor: string;
+  tasks: Task[];
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
+  onTaskMove: (taskId: string, newStatus: TaskStatus) => Promise<void>;
+  isManager: boolean;
+  onCardClick: (task: Task) => void;
+  onTaskDelete?: (taskId: string) => Promise<void>;
+}
+
 interface KanbanBoardProps {
   tasks: Task[];
   onTaskMove: (taskId: string, newStatus: TaskStatus) => Promise<void>;
@@ -35,7 +47,6 @@ const COLUMNS: { id: TaskStatus; title: string; headingColor: string }[] = [
   { id: TaskStatus.DONE,        title: "Complete",    headingColor: "text-emerald-600" },
 ];
 
-/* ─── DropIndicator ──────────────────────────────────────────────────── */
 const DropIndicator = ({
   beforeId,
   column,
@@ -49,19 +60,6 @@ const DropIndicator = ({
     className="my-0.5 h-0.5 w-full rounded bg-violet-400 opacity-0 transition-opacity"
   />
 );
-
-
-interface ColumnProps {
-  column: TaskStatus;
-  title: string;
-  headingColor: string;
-  tasks: Task[];
-  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
-  onTaskMove: (taskId: string, newStatus: TaskStatus) => Promise<void>;
-  isManager: boolean;
-  onCardClick: (task: Task) => void;
-  onTaskDelete?: (taskId: string) => Promise<void>;
-}
 
 const Column = ({
   column,
@@ -147,9 +145,7 @@ const Column = ({
 
     try {
       await onTaskMove(taskId, column);
-    } catch {
-      // parent will re-sync via tasks prop
-    }
+    } catch {}
   };
 
   return (
@@ -192,7 +188,6 @@ const Column = ({
   );
 };
 
-/* ─── Board ──────────────────────────────────────────────────────────── */
 export function KanbanBoard({
   tasks,
   onTaskMove,
@@ -214,7 +209,6 @@ export function KanbanBoard({
     t.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Merge updates from TaskDetail back into board state
   const handleTaskUpdated = (updated: Partial<Task> & { id: string }) => {
     setBoardTasks((prev) =>
       prev.map((t) => (t.id === updated.id ? { ...t, ...updated } : t))

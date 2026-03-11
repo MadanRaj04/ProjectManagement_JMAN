@@ -49,10 +49,6 @@ export default function LoginPage() {
     };
   return (
     <div className="flex min-h-screen items-center justify-center p-4 bg-muted/30">
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-[10%] -right-[10%] w-[50%] h-[50%] rounded-full bg-brand-500/10 blur-[120px]" />
-        <div className="absolute top-[20%] -left-[10%] w-[40%] h-[40%] rounded-full bg-indigo-500/10 blur-[120px]" />
-      </div>
 
       <div className="w-full max-w-md relative z-10 animate-in fade-in zoom-in-95 duration-500">
         <Link 

@@ -5,6 +5,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, AlignLeft, CheckSquare, MessageSquare, Loader2, User2 } from "lucide-react";
 import { TaskStatus } from "@prisma/client";
 
+const PRIORITY_MAP: Record<number, { label: string; css: string }> = {
+  1: { label: "High",   css: "bg-red-100 text-red-600 border-red-200" },
+  2: { label: "Medium", css: "bg-yellow-100 text-yellow-600 border-yellow-200" },
+  3: { label: "Low",    css: "bg-blue-100 text-blue-500 border-blue-200" },
+};
+
+const STATUS_OPTIONS: { value: TaskStatus; label: string; css: string }[] = [
+  { value: TaskStatus.TODO,        label: "TODO",        css: "bg-yellow-50 text-yellow-700 border-yellow-200" },
+  { value: TaskStatus.IN_PROGRESS, label: "In Progress", css: "bg-blue-50 text-blue-700 border-blue-200"      },
+  { value: TaskStatus.DONE,        label: "Complete",    css: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+];
 
 interface UserStub {
   id: string;
@@ -40,19 +51,6 @@ interface TaskDetailPanelProps {
   onTaskUpdated?: (updated: Partial<TaskDetail> & { id: string }) => void;
 }
 
-/* ─── Priority helpers ───────────────────────────────────────────────── */
-const PRIORITY_MAP: Record<number, { label: string; css: string }> = {
-  1: { label: "High",   css: "bg-red-100 text-red-600 border-red-200" },
-  2: { label: "Medium", css: "bg-yellow-100 text-yellow-600 border-yellow-200" },
-  3: { label: "Low",    css: "bg-blue-100 text-blue-500 border-blue-200" },
-};
-
-const STATUS_OPTIONS: { value: TaskStatus; label: string; css: string }[] = [
-  { value: TaskStatus.TODO,        label: "TODO",        css: "bg-yellow-50 text-yellow-700 border-yellow-200" },
-  { value: TaskStatus.IN_PROGRESS, label: "In Progress", css: "bg-blue-50 text-blue-700 border-blue-200"      },
-  { value: TaskStatus.DONE,        label: "Complete",    css: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-];
-
 function formatTime(iso: string) {
   return new Date(iso).toLocaleString(undefined, {
     month: "short", day: "numeric",
@@ -60,7 +58,6 @@ function formatTime(iso: string) {
   });
 }
 
-/* ─── Component ──────────────────────────────────────────────────────── */
 export function TaskDetailPanel({
   taskId,
   isOpen,
@@ -96,12 +93,10 @@ export function TaskDetailPanel({
       .finally(() => setLoading(false));
   }, [taskId, isOpen]);
 
-  /* Scroll comments to bottom on new comment */
   useEffect(() => {
     commentsEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [task?.comments]);
 
-  /* ── Generic PATCH helper ── */
   async function patch(field: string, body: Record<string, unknown>) {
     if (!task) return;
     setSaving(field);
@@ -119,7 +114,6 @@ export function TaskDetailPanel({
     }
   }
 
-  /* ── Field save handlers ── */
   const saveTitle = () => {
     if (title.trim() && title !== task?.title) patch("title", { title: title.trim() });
   };
@@ -143,7 +137,6 @@ export function TaskDetailPanel({
     patch("assignedTo", { assignedToId: id || null });
   };
 
-  /* ── Post comment ── */
   const postComment = async () => {
     if (!commentText.trim() || !task) return;
     setPosting(true);
@@ -164,14 +157,10 @@ export function TaskDetailPanel({
     }
   };
 
-  const currentStatus = STATUS_OPTIONS.find((s) => s.value === status);
-  const priorityInfo  = PRIORITY_MAP[priority] ?? PRIORITY_MAP[2];
-
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -180,7 +169,6 @@ export function TaskDetailPanel({
             className="fixed inset-0 z-50 bg-black/20 backdrop-blur-[2px]"
           />
 
-          {/* Slide-in panel */}
           <motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
@@ -194,7 +182,6 @@ export function TaskDetailPanel({
               </div>
             ) : task ? (
               <>
-                {/* ── Header ── */}
                 <div className="flex items-center justify-between border-b border-gray-100 px-8 py-4">
                   <div className="flex items-center gap-2 text-xs text-gray-400">
                     <span>Projects</span>
@@ -211,11 +198,8 @@ export function TaskDetailPanel({
                   </button>
                 </div>
 
-                {/* ── Body ── */}
                 <div className="flex flex-1 overflow-hidden">
-                  {/* Left: main content */}
                   <div className="flex flex-1 flex-col gap-7 overflow-y-auto px-8 py-7">
-                    {/* Title */}
                     <div>
                       <input
                         value={title}
@@ -230,7 +214,6 @@ export function TaskDetailPanel({
                       )}
                     </div>
 
-                    {/* Description */}
                     <section>
                       <div className="flex items-center gap-2 mb-2 text-gray-600 font-semibold text-sm">
                         <AlignLeft className="h-4 w-4" />
@@ -249,7 +232,6 @@ export function TaskDetailPanel({
                       />
                     </section>
 
-                    {/* Activity / Comments */}
                     <section className="flex flex-col flex-1">
                       <div className="flex items-center gap-2 mb-4 text-gray-600 font-semibold text-sm">
                         <MessageSquare className="h-4 w-4" />
@@ -259,7 +241,6 @@ export function TaskDetailPanel({
                         </span>
                       </div>
 
-                      {/* Comments list */}
                       <div className="flex flex-col gap-4 mb-4 max-h-64 overflow-y-auto pr-1">
                         {task.comments.length === 0 ? (
                           <p className="text-xs text-gray-400 italic">No comments yet. Be the first!</p>
@@ -288,7 +269,6 @@ export function TaskDetailPanel({
                         <div ref={commentsEndRef} />
                       </div>
 
-                      {/* Comment input */}
                       <div className="flex gap-2 mt-auto">
                         <textarea
                           value={commentText}
@@ -318,10 +298,8 @@ export function TaskDetailPanel({
                     </section>
                   </div>
 
-                  {/* Right: sidebar */}
                   <div className="w-56 shrink-0 border-l border-gray-100 overflow-y-auto px-5 py-7 space-y-6 bg-gray-50/60">
 
-                    {/* Status */}
                     <div>
                       <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wide text-gray-400">
                         Status
@@ -346,7 +324,6 @@ export function TaskDetailPanel({
                       </div>
                     </div>
 
-                    {/* Priority */}
                     <div>
                       <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wide text-gray-400">
                         Priority
@@ -368,7 +345,6 @@ export function TaskDetailPanel({
                       </div>
                     </div>
 
-                    {/* Assignee */}
                     <div>
                       <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wide text-gray-400">
                         Assignee
@@ -386,7 +362,6 @@ export function TaskDetailPanel({
                         ))}
                       </select>
 
-                      {/* Avatar preview */}
                       <div className="mt-2 flex items-center gap-2">
                         {task.assignedTo ? (
                           <>

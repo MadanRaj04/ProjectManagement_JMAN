@@ -1,7 +1,6 @@
 import { MessageSquare, Trash2 } from "lucide-react";
 import { TaskStatus } from "@prisma/client";
 
-/* ─── Priority helpers ───────────────────────────────────────────────── */
 const PRIORITY_MAP: Record<number, { label: string; css: string }> = {
   1: { label: "High", css: "bg-red-100 text-red-600 border-red-200" },
   2: { label: "Med",  css: "bg-yellow-100 text-yellow-600 border-yellow-200" },
@@ -42,7 +41,6 @@ interface TaskCardProps {
 export function TaskCard({ task, isManager, onDelete }: TaskCardProps) {
   return (
     <div className="group relative rounded-lg border border-gray-200 bg-white p-3 shadow-sm hover:shadow-md hover:border-gray-300 transition-all">
-      {/* Delete — manager only */}
       {isManager && onDelete && (
         <button
           onClick={(e) => { e.stopPropagation(); onDelete(); }}
@@ -53,24 +51,20 @@ export function TaskCard({ task, isManager, onDelete }: TaskCardProps) {
         </button>
       )}
 
-      {/* Priority */}
       <div className="mb-2">
         <PriorityTag priority={task.priority} />
       </div>
 
-      {/* Title */}
       <p className="text-sm font-medium text-gray-800 pr-6 leading-snug">
         {task.title}
       </p>
 
-      {/* Description preview */}
       {task.description && (
         <p className="mt-1 text-xs text-gray-400 line-clamp-2 pr-6">
           {task.description}
         </p>
       )}
 
-      {/* Footer */}
       <div className="mt-3 pt-2 flex items-center justify-between border-t border-gray-100">
         {task.assignedTo ? (
           <div
