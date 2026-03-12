@@ -2,39 +2,37 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { KanbanBoard } from "@/components/kanban/KanbanBoard";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { Badge } from "@/components/ui/Badge";
-import { Users, UserPlus, ArrowLeft } from "lucide-react";
+import { Users, ArrowLeft, Plus } from "lucide-react";
 import Link from "next/link";
+import { KanbanBoard } from "@/components/kanban/KanbanBoard";
 import { TaskStatus } from "@prisma/client";
-
-const PRIORITY_OPTIONS = [
-  { value: 1, label: "High",   css: "bg-red-100 text-red-600 border-red-200"         },
-  { value: 2, label: "Medium", css: "bg-yellow-100 text-yellow-600 border-yellow-200" },
-  { value: 3, label: "Low",    css: "bg-blue-100 text-blue-500 border-blue-200"       },
-];
 
 export default function ManagerProjectView() {
   const params = useParams();
   const router = useRouter();
   const [project, setProject] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isInviteModalOpen, setIsInviteModalOpen] = useState<boolean>(false);
+  const [isAllocModalOpen, setIsAllocModalOpen] = useState<boolean>(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState<boolean>(false);
-  const [inviteEmail, setInviteEmail]   = useState<string>("");
+  const [allocUserId, setAllocUserId] = useState<string>("");
+  const [allocStart, setAllocStart] = useState<string>("");
+  const [allocEnd, setAllocEnd] = useState<string>("");
+  const [allocPercent, setAllocPercent] = useState<number>(0);
+  const [taskTitle, setTaskTitle] = useState<string>("");
+  const [taskDescription, setTaskDescription] = useState<string>("");
+  const [taskPriority, setTaskPriority] = useState<number>(2);
+  const [users, setUsers] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [taskTitle, setTaskTitle]         = useState<string>("");
-  const [taskDescription, setTaskDesc]   = useState<string>("");
-  const [taskPriority, setTaskPriority]   = useState<number>(2);
-  const [taskStatus, setTaskStatus]       = useState<TaskStatus>(TaskStatus.TODO);
-  const [assignedToId, setAssignedToId]   = useState<string>("");
 
   const fetchProjectDetails = async () => {
     try {
-      const res = await fetch(`/api/projects/${params.id}`);
+      const res = await fetch(`/api/projects/${params.id}`, {
+        credentials: "include"
+      });
       if (res.ok) {
         const data = await res.json();
         setProject(data.project);
@@ -48,69 +46,88 @@ export default function ManagerProjectView() {
     }
   };
 
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch('/api/users');
+      if (res.ok) {
+        const data = await res.json();
+        setUsers(data.users || []);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   useEffect(() => {
     fetchProjectDetails();
-  }, [params.id, router]);
+    fetchUsers();
+  }, [params.id]);
 
-
-  const handleInviteUser = async (e: React.FormEvent) => {
+  const handleCreateAllocation = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inviteEmail) return;
+    if (!allocUserId || !allocStart || !allocEnd || allocPercent <= 0) return;
     setIsSubmitting(true);
     try {
-      const res = await fetch("/api/manager/invites", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projectId: params.id, email: inviteEmail }),
+      const res = await fetch('/api/allocations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: "include",
+        body: JSON.stringify({
+          userId: allocUserId,
+          projectId: params.id,
+          startDate: allocStart,
+          endDate: allocEnd,
+          allocationPercentage: allocPercent,
+        }),
       });
       const data = await res.json();
       if (res.ok) {
-        setInviteEmail("");
-        setIsInviteModalOpen(false);
-        alert("Invitation sent to " + inviteEmail);
+        setIsAllocModalOpen(false);
+        setAllocUserId('');
+        setAllocStart('');
+        setAllocEnd('');
+        setAllocPercent(0);
+        fetchProjectDetails();
       } else {
-        alert(data.error);
+        alert(data.error || 'Allocation failed');
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-
-  const resetTaskForm = () => {
-    setTaskTitle("");
-    setTaskDesc("");
-    setTaskPriority(2);
-    setTaskStatus(TaskStatus.TODO);
-    setAssignedToId("");
-  };
-
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!taskTitle) return;
+    if (!taskTitle.trim()) return;
     setIsSubmitting(true);
     try {
-      const res = await fetch("/api/tasks", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/tasks/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: "include",
         body: JSON.stringify({
-          title:        taskTitle,
-          description:  taskDescription || undefined,
-          priority:     taskPriority,
-          status:       taskStatus,
-          projectId:    params.id,
-          assignedToId: assignedToId || undefined,
+          title: taskTitle,
+          description: taskDescription || null,
+          priority: taskPriority,
+          projectId: params.id,
+          status: TaskStatus.TODO,
         }),
       });
+      const data = await res.json();
       if (res.ok) {
-        resetTaskForm();
         setIsTaskModalOpen(false);
+        setTaskTitle('');
+        setTaskDescription('');
+        setTaskPriority(2);
         fetchProjectDetails();
+      } else {
+        alert(data.error || 'Task creation failed');
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to create task');
     } finally {
       setIsSubmitting(false);
     }
@@ -120,24 +137,30 @@ export default function ManagerProjectView() {
     const res = await fetch("/api/tasks", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ taskId, status: newStatus }),
     });
-    if (!res.ok) throw new Error("Failed to update task");
+    
+    if (!res.ok) {
+        throw new Error("Failed to update task");
+    }
   };
 
   const handleTaskDelete = async (taskId: string) => {
     if (!confirm("Are you sure you want to delete this task?")) return;
     try {
-      const res = await fetch(`/api/tasks/${taskId}`, { method: "DELETE" });
+      const res = await fetch(`/api/tasks/${taskId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
       if (res.ok) {
         fetchProjectDetails();
       } else {
-        const text = await res.text();
-        const data = text ? JSON.parse(text) : {};
-        alert(data.error || "Failed to delete task");
+        alert("Failed to delete task");
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete task");
     }
   };
 
@@ -153,7 +176,7 @@ export default function ManagerProjectView() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)]">
-      {/* ── Page header ── */}
+      {/* header */}
       <div className="mb-6 flex flex-col gap-4">
         <Link
           href="/manager/dashboard"
@@ -162,188 +185,127 @@ export default function ManagerProjectView() {
           <ArrowLeft className="h-4 w-4" />
           Back to Dashboard
         </Link>
-
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-border/50 pb-6">
           <div>
             <div className="flex items-center gap-3 mb-1">
               <h1 className="text-3xl font-bold tracking-tight">{project.name}</h1>
               <Badge variant="success" className="h-6">Active</Badge>
             </div>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-sm text-muted-foreground">
+              {project.projectCode && <span>Code: {project.projectCode}</span>}
+              {project.projectDate && <span>Date: {new Date(project.projectDate).toLocaleDateString()}</span>}
+            </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Users className="h-4 w-4" />
               <span>{project.members.length} team members</span>
             </div>
           </div>
-
-          <div className="flex items-center gap-3">
-            <Button variant="outline" className="glass" onClick={() => setIsInviteModalOpen(true)}>
-              <UserPlus className="mr-2 h-4 w-4" />
-              Invite
-            </Button>
-            <Button
-              className="shadow-md shadow-brand-500/20"
-              onClick={() => setIsTaskModalOpen(true)}
-            >
+          <div className="flex gap-2">
+            <Button onClick={() => setIsTaskModalOpen(true)} variant="outline">
+              <Plus className="h-4 w-4 mr-1" />
               Add Task
+            </Button>
+            <Button onClick={() => setIsAllocModalOpen(true)}>
+              Allocate Resource
             </Button>
           </div>
         </div>
       </div>
 
-      {/* ── Kanban ── */}
+      {/* tasks board */}
       <div className="flex-1 overflow-hidden">
-        <KanbanBoard
-          tasks={project.tasks}
+        <KanbanBoard 
+          tasks={project.tasks || []} 
           onTaskMove={handleTaskMove}
-          onTaskDelete={handleTaskDelete}
           members={project.members}
           isManager={true}
+          onTaskDelete={handleTaskDelete}
         />
       </div>
 
-      {/* ── Invite modal ── */}
-      <Modal isOpen={isInviteModalOpen} onClose={() => setIsInviteModalOpen(false)} title="Invite Team Member">
-        <form onSubmit={handleInviteUser} className="space-y-6">
+      {/* task creation modal */}
+      <Modal isOpen={isTaskModalOpen} onClose={() => setIsTaskModalOpen(false)} title="Create New Task">
+        <form onSubmit={handleCreateTask} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium leading-none" htmlFor="email">
-              User Email Address
-            </label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="user@example.com"
-              value={inviteEmail}
-              onChange={(e) => setInviteEmail(e.target.value)}
-              required
-            />
-            <p className="text-xs text-muted-foreground mt-2">
-              The user must already be registered in the system to receive the invite.
-            </p>
-          </div>
-          <div className="flex justify-end gap-3 pt-2">
-            <Button type="button" variant="ghost" onClick={() => setIsInviteModalOpen(false)}>Cancel</Button>
-            <Button type="submit" isLoading={isSubmitting}>Send Invite</Button>
-          </div>
-        </form>
-      </Modal>
-
-      {/* ── Create task modal ── */}
-      <Modal
-        isOpen={isTaskModalOpen}
-        onClose={() => { setIsTaskModalOpen(false); resetTaskForm(); }}
-        title="Create New Task"
-      >
-        <form onSubmit={handleCreateTask} className="space-y-5">
-
-          {/* Title */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-gray-700" htmlFor="title">
-              Task Title <span className="text-red-400">*</span>
-            </label>
-            <Input
+            <label className="text-sm font-medium" htmlFor="title">Task Title *</label>
+            <Input 
               id="title"
-              placeholder="e.g. Design the main landing page"
+              type="text"
+              placeholder="Enter task title"
               value={taskTitle}
               onChange={(e) => setTaskTitle(e.target.value)}
               required
             />
           </div>
-
-          {/* Description */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-gray-700" htmlFor="description">
-              Description <span className="text-xs text-gray-400 font-normal">(optional)</span>
-            </label>
+          <div className="space-y-2">
+            <label className="text-sm font-medium" htmlFor="description">Description</label>
             <textarea
               id="description"
-              rows={3}
-              placeholder="Add more context about this task..."
+              placeholder="Enter task description (optional)"
               value={taskDescription}
-              onChange={(e) => setTaskDesc(e.target.value)}
-              className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm placeholder-gray-400 focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-400 resize-none transition-colors"
+              onChange={(e) => setTaskDescription(e.target.value)}
+              className="w-full rounded-md border px-3 py-2 text-sm min-h-[100px] resize-none"
             />
           </div>
-
-          {/* Priority + Status side by side */}
-          <div className="grid grid-cols-2 gap-4">
-            {/* Priority */}
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-gray-700">Priority</label>
-              <div className="flex flex-col gap-1">
-                {PRIORITY_OPTIONS.map((opt) => (
-                  <button
-                    type="button"
-                    key={opt.value}
-                    onClick={() => setTaskPriority(opt.value)}
-                    className={`rounded-md border px-3 py-1.5 text-xs font-semibold text-left transition-all ${
-                      taskPriority === opt.value
-                        ? opt.css + " shadow-sm"
-                        : "border-gray-200 bg-white text-gray-500 hover:border-gray-300"
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Status */}
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-gray-700">Status</label>
-              <div className="flex flex-col gap-1">
-                {[
-                  { value: TaskStatus.TODO,        label: "TODO",        css: "bg-yellow-50 text-yellow-700 border-yellow-200"   },
-                  { value: TaskStatus.IN_PROGRESS,  label: "In Progress", css: "bg-blue-50 text-blue-700 border-blue-200"         },
-                  { value: TaskStatus.DONE,         label: "Complete",    css: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-                ].map((opt) => (
-                  <button
-                    type="button"
-                    key={opt.value}
-                    onClick={() => setTaskStatus(opt.value)}
-                    className={`rounded-md border px-3 py-1.5 text-xs font-semibold text-left transition-all ${
-                      taskStatus === opt.value
-                        ? opt.css + " shadow-sm"
-                        : "border-gray-200 bg-white text-gray-500 hover:border-gray-300"
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Assignee */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-gray-700" htmlFor="assignee">
-              Assign To <span className="text-xs text-gray-400 font-normal">(optional)</span>
-            </label>
+          <div className="space-y-2">
+            <label className="text-sm font-medium" htmlFor="priority">Priority</label>
             <select
-              id="assignee"
-              className="flex h-10 w-full rounded-md border border-border bg-surface px-3 py-2 text-sm focus:border-violet-400 focus:outline-none focus:ring-1 focus:ring-violet-400"
-              value={assignedToId}
-              onChange={(e) => setAssignedToId(e.target.value)}
+              id="priority"
+              value={taskPriority}
+              onChange={(e) => setTaskPriority(Number(e.target.value))}
+              className="w-full rounded-md border px-2 py-1"
             >
-              <option value="">Unassigned</option>
-              {project.members.map((m: any) => (
-                <option key={m.user.id} value={m.user.id}>
-                  {m.user.username} ({m.user.email})
-                </option>
+              <option value={1}>High</option>
+              <option value={2}>Medium</option>
+              <option value={3}>Low</option>
+            </select>
+          </div>
+          <div className="flex justify-end gap-3 pt-2">
+            <Button type="button" variant="ghost" onClick={() => setIsTaskModalOpen(false)}>Cancel</Button>
+            <Button type="submit" isLoading={isSubmitting}>Create Task</Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* allocation modal */}
+      <Modal isOpen={isAllocModalOpen} onClose={() => setIsAllocModalOpen(false)} title="Allocate Resource">
+        <form onSubmit={handleCreateAllocation} className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium" htmlFor="user">User</label>
+            <select
+              id="user"
+              value={allocUserId}
+              onChange={(e) => setAllocUserId(e.target.value)}
+              className="w-full rounded-md border px-2 py-1"
+            >
+              <option value="">Select a user</option>
+              {users.map((u) => (
+                <option key={u.id} value={u.id}>{u.username}</option>
               ))}
             </select>
           </div>
-
-          <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => { setIsTaskModalOpen(false); resetTaskForm(); }}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" isLoading={isSubmitting}>
-              Create Task
-            </Button>
+          <div className="space-y-2">
+            <label className="text-sm font-medium" htmlFor="start">Start Date</label>
+            <Input id="start" type="date" value={allocStart} onChange={(e) => setAllocStart(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium" htmlFor="end">End Date</label>
+            <Input id="end" type="date" value={allocEnd} onChange={(e) => setAllocEnd(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium" htmlFor="percent">Allocation (%)</label>
+            <Input
+              id="percent"
+              type="number"
+              min={0}
+              max={100}
+              value={allocPercent}
+              onChange={(e) => setAllocPercent(Number(e.target.value))}
+            />
+          </div>
+          <div className="flex justify-end gap-3 pt-2">
+            <Button type="button" variant="ghost" onClick={() => setIsAllocModalOpen(false)}>Cancel</Button>
+            <Button type="submit" isLoading={isSubmitting}>Save</Button>
           </div>
         </form>
       </Modal>

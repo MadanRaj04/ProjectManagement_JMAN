@@ -36,12 +36,15 @@ export async function GET(
             user: { select: { id: true, username: true, email: true } },
           },
         },
+        allocations: {
+          include: { user: { select: { id: true, username: true, email: true } } },
+          orderBy: { startDate: 'asc' }
+        },
         tasks: {
           include: {
             assignedTo: { select: { id: true, username: true } },
-            _count: { select: { comments: true } },
-          },
-          orderBy: { createdAt: "desc" },
+            _count: { select: { comments: true } }
+          }
         },
         manager: { select: { id: true, username: true } },
       },
@@ -53,19 +56,15 @@ export async function GET(
 
     const isManager = project.managerId === user.userId;
     const isMember = project.members.some((m) => m.userId === user.userId);
+    const isAllocated = project.allocations.some((a) => a.userId === user.userId);
 
-    if (!isManager && !isMember) {
+    if (!isManager && !isMember && !isAllocated) {
       return NextResponse.json(
         { error: "Unauthorized to view this project" },
         { status: 403 }
       );
     }
 
-    if (!isManager) {
-      project.tasks = project.tasks.filter(
-        (t: any) => !t.assignedTo || t.assignedTo.id === user.userId
-      ) as any;
-    }
 
     return NextResponse.json({ project });
   } catch (error) {

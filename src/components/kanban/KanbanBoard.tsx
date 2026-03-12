@@ -195,17 +195,17 @@ export function KanbanBoard({
   isManager,
   onTaskDelete,
 }: KanbanBoardProps) {
-  const [boardTasks, setBoardTasks] = React.useState<Task[]>(tasks);
+  const [boardTasks, setBoardTasks] = React.useState<Task[]>(tasks || []);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [selectedTaskId, setSelectedTaskId] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    setBoardTasks(tasks);
+    setBoardTasks(tasks || []);
   }, [tasks]);
 
   const isSearching = searchQuery.length > 0;
 
-  const filteredTasks = boardTasks.filter((t) =>
+  const filteredTasks = (boardTasks || []).filter((t) =>
     t.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 

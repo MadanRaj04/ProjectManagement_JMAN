@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, LogOut, CheckSquare, Settings, Users, Briefcase } from "lucide-react";
+import { LayoutDashboard, LogOut, CheckSquare, Settings, Users, Briefcase, Calendar } from "lucide-react";
 import { cn } from "lib/utils";
 
 interface SidebarProps {
@@ -16,11 +16,13 @@ export function Sidebar({ role }: SidebarProps) {
   const managerLinks = [
     { href: "/manager/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/manager/projects", label: "Projects", icon: Briefcase },
+    { href: "/manager/users", label: "Users", icon: Users },
+    { href: "/manager/allocations", label: "Allocations", icon: CheckSquare },
   ];
 
   const userLinks = [
     { href: "/user/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/user/tasks", label: "My Tasks", icon: CheckSquare },
+    { href: "/user/allocations", label: "My Allocations", icon: Calendar },
   ];
 
   const links = role === "MANAGER" ? managerLinks : userLinks;

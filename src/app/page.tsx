@@ -38,8 +38,8 @@ export default function LandingPage() {
               </h1>
               
               <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground sm:text-xl leading-relaxed">
-                The premium project management platform built for modern teams.
-                Experience seamless collaboration with our ultra-fast, role-based Kanban boards.
+                A minimal project and resource allocation system for teams.
+                Create projects, add users, and track weekly allocations with ease.
               </p>
               
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -68,19 +68,14 @@ export default function LandingPage() {
             <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
               {[
                 {
-                  icon: LayoutDashboard,
-                  title: "Intuitive Kanban",
-                  description: "Drag and drop tasks effortlessly. Visualize your workflow with our premium, glassmorphic board interface."
-                },
-                {
                   icon: Users,
                   title: "Role-Based Access",
-                  description: "Secure workspaces with strict Manager and User portals. Control exactly who sees what."
+                  description: "Secure manager and team member views. Only managers can create projects and allocations."
                 },
                 {
                   icon: Zap,
-                  title: "Lightning Fast",
-                  description: "Built on Next.js 15 and PostgreSQL. Experience real-time speed with zero loading spinners."
+                  title: "Quick Setup",
+                  description: "Start assigning resources within minutes. Lightweight and minimal by design."
                 }
               ].map((feature, i) => (
                 <div key={i} className="glass-card p-8 text-center sm:text-left flex flex-col items-center sm:items-start transition-transform hover:-translate-y-1">

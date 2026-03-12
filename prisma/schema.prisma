@@ -31,11 +31,16 @@ model User {
   tasks Task[]
 
   taskComments TaskComment[]
+
+  allocations ResourceAllocation[]
 }
 
 model Project {
   id        String @id @default(uuid())
   name      String
+  clientName String?
+  projectCode String @unique
+  projectDate DateTime @default(now())
   status    String @default("ACTIVE")
 
   manager   User   @relation("ManagerProjects", fields: [managerId], references: [id])
@@ -45,6 +50,7 @@ model Project {
   invites   ProjectInvite[]
 
   tasks     Task[]
+  allocations ResourceAllocation[]
 }
 
 model ProjectMember {
@@ -119,3 +125,18 @@ model TaskComment {
 
   createdAt DateTime @default(now())
 }
+
+model ResourceAllocation {
+  id             String   @id @default(uuid())
+  user           User     @relation(fields: [userId], references: [id])
+  userId         String
+  project        Project  @relation(fields: [projectId], references: [id])
+  projectId      String
+  startDate      DateTime
+  endDate        DateTime
+  allocationPercentage Float
+  createdAt      DateTime @default(now())
+
+  @@unique([userId, projectId, startDate, endDate])
+}
+

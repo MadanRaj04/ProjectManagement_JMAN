@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Plus, Briefcase, Users, CheckSquare } from "lucide-react";
+import { Plus, Briefcase, Users } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
@@ -12,7 +12,10 @@ import { useRouter } from "next/navigation";
 interface Project {
   id: string;
   name: string;
-  _count: { members: number; tasks: number };
+  clientName?: string;
+  projectCode?: string;
+  projectDate?: string;
+  _count: { members: number; tasks?: number };
 }
 
 export default function ManagerDashboard() {
@@ -20,7 +23,10 @@ export default function ManagerDashboard() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [editingProject, setEditingProject] = useState<any | null>(null);
   const [newProjectName, setNewProjectName] = useState<string>("");
+  const [newClientName, setNewClientName] = useState<string>("");
+  const [newProjectDate, setNewProjectDate] = useState<string>("");
   const [isCreating, setIsCreating] = useState<boolean>(false);
 
   const fetchProjects = async () => {
@@ -49,14 +55,32 @@ export default function ManagerDashboard() {
 
     setIsCreating(true);
     try {
-      const res = await fetch("/api/manager/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newProjectName }),
-      });
+      const payload: any = { name: newProjectName };
+      if (newClientName.trim()) payload.clientName = newClientName;
+      if (newProjectDate) payload.projectDate = newProjectDate;
+
+      // if editing, call PATCH
+      let res;
+      if (editingProject) {
+        payload.projectId = editingProject.id;
+        res = await fetch("/api/manager/projects", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        res = await fetch("/api/manager/projects", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      }
 
       if (res.ok) {
         setNewProjectName("");
+        setNewClientName("");
+        setNewProjectDate("");
+        setEditingProject(null);
         setIsModalOpen(false);
         fetchProjects();
       }
@@ -81,6 +105,14 @@ export default function ManagerDashboard() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Manager Dashboard</h1>
           <p className="text-muted-foreground mt-1">Manage your teams and oversee project execution.</p>
+          <div className="mt-2 flex gap-2">
+            <Link href="/manager/users">
+              <Button size="sm" variant="outline">Users</Button>
+            </Link>
+            <Link href="/manager/allocations">
+              <Button size="sm" variant="outline">Allocations</Button>
+            </Link>
+          </div>
         </div>
         <Button onClick={() => setIsModalOpen(true)} className=" hover:bg-brand-500 shadow-md">
           <Plus className="mr-2 h-4 w-4" />
@@ -90,31 +122,46 @@ export default function ManagerDashboard() {
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {projects.map((project) => (
-          <Link key={project.id} href={`/manager/projects/${project.id}`}>
-            <Card className="glass cursor-pointer transition-all duration-300 hover:shadow-lg hover:border-brand-500/50 group h-full">
-              <CardHeader className="pb-4">
-                <div className="flex justify-between items-start">
-                  <div className="p-2.5 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20 group-hover:scale-110 transition-transform">
-                    <Briefcase className="h-5 w-5" />
+          <div key={project.id} className="relative">
+            <Link href={`/manager/projects/${project.id}`}
+                  className="glass cursor-pointer transition-all duration-300 hover:shadow-lg hover:border-brand-500/50 group h-full block">
+              <Card>
+                <CardHeader className="pb-4">
+                  <div className="flex justify-between items-start">
+                    <div className="p-2.5 rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-500/20 group-hover:scale-110 transition-transform">
+                      <Briefcase className="h-5 w-5" />
+                    </div>
                   </div>
-                </div>
-                <CardTitle className="text-xl mt-4 group-hover:text-brand-600 transition-colors">{project.name}</CardTitle>
-                <CardDescription>Click to manage board and team</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-4 text-sm font-medium text-muted-foreground">
-                  <div className="flex items-center gap-1.5 bg-muted/50 px-2 py-1 rounded-md">
-                    <Users className="h-4 w-4" />
-                    {project._count.members} Members
+                  <CardTitle className="text-xl mt-4 group-hover:text-brand-600 transition-colors">{project.name}</CardTitle>
+                  <CardDescription>
+                    {project.clientName && <span className="mr-2">{project.clientName}</span>}
+                    {project.projectCode && <span className="mr-2">{project.projectCode}</span>}
+                    {project.projectDate && new Date(project.projectDate).toLocaleDateString()}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-4 text-sm font-medium text-muted-foreground">
+                    <div className="flex items-center gap-1.5 bg-muted/50 px-2 py-1 rounded-md">
+                      <Users className="h-4 w-4" />
+                      {project._count.members} Members
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5 bg-muted/50 px-2 py-1 rounded-md">
-                    <CheckSquare className="h-4 w-4" />
-                    {project._count.tasks} Tasks
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+                </CardContent>
+              </Card>
+            </Link>
+            <button
+              className="absolute top-2 right-2 text-xs text-primary underline"
+              onClick={() => {
+                setEditingProject(project);
+                setNewProjectName(project.name);
+                setNewClientName(project.clientName || '');
+                setNewProjectDate(project.projectDate ? project.projectDate.split('T')[0] : '');
+                setIsModalOpen(true);
+              }}
+            >
+              Edit
+            </button>
+          </div>
         ))}
       </div>
 
@@ -133,7 +180,7 @@ export default function ManagerDashboard() {
         </div>
       )}
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create New Project">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingProject ? "Edit Project" : "Create New Project"}>
         <form onSubmit={handleCreateProject} className="space-y-6">
           <div className="space-y-2 ">
             <label className="text-sm font-medium leading-none" htmlFor="name">
@@ -147,12 +194,34 @@ export default function ManagerDashboard() {
               autoFocus
             />
           </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium leading-none" htmlFor="client">
+              Client Name (optional)
+            </label>
+            <Input
+              id="client"
+              placeholder="Acme Corp"
+              value={newClientName}
+              onChange={(e) => setNewClientName(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium leading-none" htmlFor="date">
+              Project Date
+            </label>
+            <Input
+              id="date"
+              type="date"
+              value={newProjectDate}
+              onChange={(e) => setNewProjectDate(e.target.value)}
+            />
+          </div>
           <div className="flex justify-end gap-3 pt-2 border-t border-border/50">
             <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)}>
               Cancel
             </Button>
             <Button type="submit" isLoading={isCreating}>
-              Create Project
+              {editingProject ? 'Save' : 'Create Project'}
             </Button>
           </div>
         </form>

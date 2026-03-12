@@ -16,7 +16,9 @@ export default function UserProjectView() {
 
   const fetchProjectDetails = async () => {
     try {
-      const res = await fetch(`/api/projects/${params.id}`);
+      const res = await fetch(`/api/projects/${params.id}`, {
+        credentials: "include"
+      });
       if (res.ok) {
         const data = await res.json();
         setProject(data.project);
@@ -38,6 +40,7 @@ export default function UserProjectView() {
     const res = await fetch("/api/tasks", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ taskId, status: newStatus }),
     });
     
